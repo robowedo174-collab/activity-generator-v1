@@ -11,20 +11,37 @@ export default function AuthPage() {
 
   useEffect(() => {
     // Проверяем, не авторизован ли уже пользователь
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        // Если пользователь уже авторизован, перенаправляем на админ-панель
-        router.push('/admin');
-      }
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data: { session }, error }) => {
+        if (error) {
+          console.error('Ошибка при получении сессии:', error);
+          return;
+        }
+        if (session?.user) {
+          // Если пользователь уже авторизован, перенаправляем на админ-панель
+          router.push('/admin');
+        }
+      })
+      .catch((error) => {
+        console.error('Критическая ошибка при проверке сессии:', error);
+      });
 
     // Подписываемся на изменения состояния авторизации
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event, session?.user?.email);
       if (event === 'SIGNED_IN' && session?.user) {
         // После успешного входа перенаправляем на админ-панель
+        console.log('Пользователь успешно вошел, перенаправляем на /admin');
         router.push('/admin');
+      }
+      if (event === 'SIGNED_OUT') {
+        console.log('Пользователь вышел');
+      }
+      if (event === 'TOKEN_REFRESHED') {
+        console.log('Токен обновлен');
       }
     });
 
