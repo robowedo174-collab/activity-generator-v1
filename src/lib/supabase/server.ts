@@ -1,14 +1,11 @@
-import { createServerClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
+import { createClient } from '@supabase/supabase-js';
 import { cache } from 'react';
 
 // Эта функция будет использоваться для создания Server Component Client.
-// Она берет куки из запроса (доступны только на сервере) и передает их Supabase.
-// Это позволяет Server Components безопасно читать данные, связанные с текущим пользователем.
+// Для версии @supabase/supabase-js 2.87.1 используем стандартный createClient
+// с правильной настройкой для серверных компонентов.
 
 export const createClient = cache(() => {
-  const cookieStore = cookies();
-
   // Ключи из переменных окружения
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   // P.S. В идеале здесь нужен Service Role Key, но пока используем Anon Key для простоты:
@@ -18,18 +15,13 @@ export const createClient = cache(() => {
     throw new Error('Missing Supabase URL or anonymous key environment variables!');
   }
 
-  return createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      get(name: string) {
-        return cookieStore.get(name)?.value;
-      },
-      set(name: string, value: string, options) {
-        // Устанавливаем куки в ответе, чтобы Supabase мог запомнить сессию
-        cookieStore.set({ name, value, ...options });
-      },
-      remove(name: string, options) {
-        cookieStore.set({ name, value: '', ...options });
-      },
+  // В версии 2.87.1 используем стандартный createClient с правильной настройкой для сервера
+  // Для серверных компонентов отключаем сохранение сессии
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
     },
   });
 });
