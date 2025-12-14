@@ -49,8 +49,17 @@ export default function AdminPage() {
   }, [router]);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/auth');
+    try {
+      // Используем API route для выхода
+      await fetch('/api/auth/signout', {
+        method: 'POST',
+      });
+      router.push('/auth');
+    } catch (error) {
+      console.error('Ошибка при выходе:', error);
+      // В случае ошибки всё равно перенаправляем на страницу входа
+      router.push('/auth');
+    }
   };
 
   if (loading) {
