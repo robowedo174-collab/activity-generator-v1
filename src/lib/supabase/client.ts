@@ -1,4 +1,4 @@
-import { createBrowserClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 
 // Получаем ключи из переменных окружения
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -10,7 +10,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Создаем и экспортируем клиент Supabase для работы в браузере (клиентские компоненты)
-export const supabase = createBrowserClient(
+export const supabase = createClient(
   supabaseUrl,
   supabaseAnonKey,
 );
