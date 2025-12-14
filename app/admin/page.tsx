@@ -12,24 +12,36 @@ export default function AdminPage() {
 
   useEffect(() => {
     // Проверяем текущую сессию
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setUser(session.user);
-      } else {
-        // Если пользователь не авторизован, перенаправляем на страницу входа
+    supabase.auth
+      .getSession()
+      .then(({ data: { session }, error }) => {
+        if (error) {
+          console.error('Ошибка при получении сессии:', error);
+          router.push('/auth');
+          return;
+        }
+        if (session?.user) {
+          setUser(session.user);
+        } else {
+          // Если пользователь не авторизован, перенаправляем на страницу входа
+          router.push('/auth');
+        }
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error('Критическая ошибка при проверке сессии:', error);
+        setLoading(false);
         router.push('/auth');
-      }
-      setLoading(false);
-    });
+      });
 
     // Подписываемся на изменения состояния авторизации
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        setUser(session.user);
-      } else {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session?.user) {
         router.push('/auth');
+      } else if (session?.user) {
+        setUser(session.user);
       }
     });
 
