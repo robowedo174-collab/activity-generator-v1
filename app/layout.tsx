@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
+import { LogIn } from "lucide-react";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,6 +30,19 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <footer className="fixed bottom-0 left-0 right-0 border-t border-zinc-200 bg-white/80 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/80">
+          <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-end">
+              <Link
+                href="/auth"
+                className="flex items-center gap-2 rounded-md p-2 text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-50"
+                aria-label="Вход / Регистрация"
+              >
+                <LogIn className="h-5 w-5" />
+              </Link>
+            </div>
+          </div>
+        </footer>
       </body>
     </html>
   );
